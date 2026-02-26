@@ -1,0 +1,39 @@
+// Prisma schema for Conversation, Message, and CodeSnippet models
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Conversation {
+  id         Int        @id @default(autoincrement())
+  title      String     @unique
+  messages    Message[]  @relation("ConversationMessages")
+  codeSnippets CodeSnippet[] @relation("ConversationCodeSnippets")
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Message {
+  id           Int         @id @default(autoincrement())
+  content      String
+  conversation Conversation @relation("ConversationMessages", fields: [conversationId], references: [id])
+  conversationId Int
+  createdAt    DateTime    @default(now())
+
+  @@index([conversationId])
+}
+
+model CodeSnippet {
+  id             Int         @id @default(autoincrement())
+  code           String
+  conversation   Conversation @relation("ConversationCodeSnippets", fields: [conversationId], references: [id])
+  conversationId Int
+  createdAt      DateTime    @default(now())
+
+  @@index([conversationId])
+}
